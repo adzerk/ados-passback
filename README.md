@@ -14,7 +14,6 @@ assuming the corresponding Adzerk flight ID is `12345`:
 <script src="https://static.adzerk.net/ados-passback.js"></script>
 <script type="text/javascript">
   passbackToAdzerk(12345);
-  // Where 12345 is the ID of the Adzerk flight that is triggering the passback
 </script>
 ```
 
