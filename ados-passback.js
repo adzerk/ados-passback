@@ -54,10 +54,11 @@
   };
 
   window.passbackToAdzerk = function(flightId) {
-    var adosFound, divName, flightIdStr, isMultipleFlights, passback, ref, unfriendlyIframe;
+    var adosFound, div, divName, flightIdAry, flightIdStr, flt, isMultipleFlights, passback, ref, ref1, ref2, unfriendlyIframe;
     isMultipleFlights = flightId instanceof Array;
     ref = getPassbackContext(window, isMultipleFlights), adosFound = ref.adosFound, unfriendlyIframe = ref.unfriendlyIframe, passback = ref.passback, divName = ref.divName;
-    flightIdStr = isMultipleFlights ? "flights " + (flightId.join(', ')) : "flight " + flightId;
+    flightIdAry = isMultipleFlights ? flightId : [flightId];
+    flightIdStr = "flight" + (isMultipleFlights ? 's' : '') + " " + (flightIdAry.join(', '));
     if (adosFound) {
       console.log("Passing back to Adzerk " + flightIdStr + "...");
       return passback(divName, flightId);
@@ -65,6 +66,14 @@
       console.log("Sending Adzerk postMessage for " + flightIdStr + "...");
       return sendPostMessages(window, flightId, isMultipleFlights);
     } else {
+      ref2 = ((ref1 = window.ados) != null ? ref1.currentPassback : void 0) || {};
+      for (div in ref2) {
+        flt = ref2[div];
+        if (flightIdAry.indexOf(flt) !== -1) {
+          console.log("Passing back to Adzerk (from window) " + flightIdStr + "...");
+          return window[isMultipleFlights ? 'azk_passback' : 'ados_passback'](div, flightId);
+        }
+      }
       return console.error("Unable to find an appropriate window for Adzerk passback.");
     }
   };

@@ -42,10 +42,8 @@ window.passbackToAdzerk = (flightId) ->
    passback,
    divName} = getPassbackContext(window, isMultipleFlights)
 
-  flightIdStr = if isMultipleFlights
-                  "flights #{flightId.join ', '}"
-                else
-                  "flight #{flightId}"
+  flightIdAry = if isMultipleFlights then flightId else [flightId]
+  flightIdStr = "flight#{if isMultipleFlights then 's' else ''} #{flightIdAry.join(', ')}"
 
   if adosFound
     console.log "Passing back to Adzerk #{flightIdStr}..."
@@ -54,5 +52,15 @@ window.passbackToAdzerk = (flightId) ->
     console.log "Sending Adzerk postMessage for #{flightIdStr}..."
     sendPostMessages(window, flightId, isMultipleFlights)
   else
+    # It's possible that ados.js was loaded in this window but getPassbackContext()
+    # did not return it with the result (for example if this window has ados.js
+    # but window.divName is not set -- one way this could happen is if the passback
+    # <script> tag containing the call to passbackToAdzerk() is written outside of
+    # the iframe in which window.divName was set).
+    for div, flt of (window.ados?.currentPassback||{})
+      if flightIdAry.indexOf(flt) isnt -1
+        console.log "Passing back to Adzerk (from window) #{flightIdStr}..."
+        return (window[if isMultipleFlights then 'azk_passback' else 'ados_passback'])(div, flightId)
+
     console.error "Unable to find an appropriate window for Adzerk passback."
 
